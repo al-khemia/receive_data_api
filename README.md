@@ -96,9 +96,13 @@ docker build -t your_image .
 
 Run a container based on your image:
 ```
-docker run -d --name your_container -p 80:80 your_image
+docker run -d --name your_container -p 8000:8000 your_image
 ```
 
+Check if the API is working 
+```
+http://localhost:8000/
+```
 
 ## Contributing
 ...
