@@ -38,10 +38,10 @@ class Rawdata(BaseModel):
 #Define a basic route
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to FastAPI"}
+    return {"message": "Welcome to Migrate Data API"}
 
-@app.post("/receive_data")
-async def receive_data(data: Rawdata):
+@app.post("/migrate_data")
+async def migrate_data(data: Rawdata):
     try:
         # Insert data for jobs table
         if data.job:
@@ -55,7 +55,7 @@ async def receive_data(data: Rawdata):
         if data.hired_employee:
             hired_employee_entries = [HiredEmployee(**item.dict()) for item in data.hired_employee]
 
-        return {"message": "Data received and saved successfully"}
+        return {"message": "Data migrated and saved successfully"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error while saving data: " + str(e))
