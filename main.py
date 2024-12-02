@@ -55,8 +55,7 @@ async def receive_data(data: Rawdata):
         if data.hired_employee:
             hired_employee_entries = [HiredEmployee(**item.dict()) for item in data.hired_employee]
 
-        return jobs_entries, department_entries, hired_employee_entries
-        #return {"message": "Data received and saved successfully"}
+        return {"message": "Data received and saved successfully"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error while saving data: " + str(e))
