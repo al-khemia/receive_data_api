@@ -1,69 +1,49 @@
-import datetime as datetime
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-from typing import List, Optional
-from sqlalchemy import create_engine
-from sqlalchemy.engine import Engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from google.cloud.sql.connector import Connector
-from database import SessionLocal, engine
+from fastapi import Depends, FastAPI, Response, status, HTTPException
+from sqlalchemy.orm import Session
+from app import models
+from app import schemas
+from app import crud
+from app.database import SessionLocal, engine
 
-
+models.Base.metadata.create_all(bind=engine)
 
 # Create an instance of the FastAPI app
 app = FastAPI()
 
-# In-memory "database"
-jobs_db = []
-departments_db = []
-hired_employees_db = []
-
-# --- pydantic models --- #
-# Model for Job table
-class Job(BaseModel):
-    id: int
-    job: str
-
-# Model for Department table
-class Department(BaseModel):
-    id: int
-    department: str
-
-# Model for Hired Employees table
-class HiredEmployee(BaseModel):
-    id: int
-    name: str
-    datetime: datetime.datetime
-    department_id: int
-    job_id: int
-
-class Rawdata(BaseModel):
-    job: Optional[List[Job]] = []
-    department: Optional[List[Department]] = []
-    hired_employee: Optional[List[HiredEmployee]] = []
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 #Define a basic route
+@app.post("/jobs", response_model=schemas.JobCreate)
+def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
+    return crud.create_job(db=db, job=job)
+
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Migrate Data API"}
 
-@app.post("/migrate_data")
-async def migrate_data(data: Rawdata):
-    try:
-        # Insert data for jobs table
-        if data.job:
-            jobs_entries = [Job(**item.dict()) for item in data.job]
-
-        # Insert data for departments table
-        if data.department:
-            department_entries = [Department(**item.dict()) for item in data.department]
-
-        # Insert data for hired_employees table
-        if data.hired_employee:
-            hired_employee_entries = [HiredEmployee(**item.dict()) for item in data.hired_employee]
-
-        return {"message": "Data migrated and saved successfully"}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Error while saving data: " + str(e))
+# @app.post("/migrate_data")
+# async def migrate_data(data: Rawdata):
+#     try:
+#         # Insert data for jobs table
+#         if data.job:
+#             jobs_entries = [Job(**item.dict()) for item in data.job]
+#
+#         # Insert data for departments table
+#         if data.department:
+#             department_entries = [Department(**item.dict()) for item in data.department]
+#
+#         # Insert data for hired_employees table
+#         if data.hired_employee:
+#             hired_employee_entries = [HiredEmployee(**item.dict()) for item in data.hired_employee]
+#
+#         return {"message": "Data migrated and saved successfully"}
+#
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail="Error while saving data: " + str(e))

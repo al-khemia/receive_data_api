@@ -1,20 +1,24 @@
-# Use a python image
-FROM python:3.6-slim
+# use the official lightweight Python image
+FROM python:3.10-slim
 
-# Work directory
-WORKDIR /Users/linfante/PycharmProjects/migrate_data_api
+# Allow statements and log messages to immediately appear in Knative logs
+ENV PYTHONUNBUFFERED True
 
-# Copy project requirements to container
-COPY ./requirements.txt /Users/linfante/PycharmProjects/migrate_data_api/requirements.txt
+# copy local code to container image
+ENV APP_HOME /app
+WORKDIR $APP_HOME
+COPY . ./
 
-# Install project dependencies
-RUN pip install --no-cache-dir -r /Users/linfante/PycharmProjects/migrate_data_api/requirements.txt
+# Install production dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files to container
-COPY ./app /Users/linfante/PycharmProjects/migrate_data_api/app
+# Run the web service on container startup. Here we use the gunicorn
+# webserver, with one worker process and 8 threads.
+# For environments with multiple CPU cores, increase the number of workers
+# to be equal to the cores available.
+CMD exec uvicorn app.main:app --reload
+
 
 # Expose app port
 EXPOSE 8000
 
-# Define command to execute the app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
