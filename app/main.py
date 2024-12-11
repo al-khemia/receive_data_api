@@ -2,6 +2,14 @@ import datetime as datetime
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Optional
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from google.cloud.sql.connector import Connector
+from database import SessionLocal, engine
+
+
 
 # Create an instance of the FastAPI app
 app = FastAPI()
