@@ -1,3 +1,7 @@
 .idea/
-__pycache__/main.cpython-36.pyc
-challenge-444-ce7bc63e6842.json
+app/__pycache__/
+/__pycache__/
+app/challenge-444-ce7bc63e6842.json
+challenge_env
+variables.py
+app/.env
